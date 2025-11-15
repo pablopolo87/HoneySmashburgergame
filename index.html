@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atrapa la Honey</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="game-wrapper">
+    <div id="notification" class="hidden"></div>
+    <div id="retro-console">
+      <div id="console-screen-container">
+
+        <!-- Screen 0: Initial state before power on -->
+        <div id="start-overlay" class="game-screen" style="display: flex;">
+          <span style="font-size: 5vmin; color: white; text-shadow: 2px 2px 5px rgba(255,255,255,0.5);">ENCENDER CONSOLA</span>
+        </div>
+
+        <!-- Screen 1: Loading Screen -->
+        <div id="loading-screen" class="game-screen">
+            <p id="loading-instructions">¡Coge los ingredientes de la hamburguesa para sumar puntos! Evita los zapatos y la lejía. ¡Y cuidado con Rafa o Miguel, si aparecen, hazle clic para que no te quiten puntos!</p>
+            <div id="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+            <button id="continue-btn" class="menu-button">Continuar</button>
+        </div>
+
+        <!-- Screen 2: Main Menu -->
+        <div id="play-options-screen" class="game-screen">
+          <h2 class="menu-title">Elige tu modo de juego</h2>
+          <button id="play-with-code-btn" class="menu-button">Jugar con Código</button>
+          <button id="play-normal-btn" class="menu-button secondary-button">Jugar Modo Normal</button>
+        </div>
+
+        <!-- Screen 3: Code Entry -->
+        <div id="code-entry-screen" class="game-screen">
+          <h2 class="menu-title">Introduce tu Código</h2>
+          <div class="code-input-container">
+            <span class="code-prefix">HONEY-</span>
+            <input type="text" id="player-code-input" placeholder="XXXXX" maxlength="5" autocapitalize="off" autocomplete="off">
+          </div>
+          <button id="validate-code-btn" class="menu-button">Validar</button>
+          <button id="back-to-menu-btn" class="menu-button secondary-button">Volver</button>
+        </div>
+
+        <!-- Screen 4: Game -->
+        <div id="game-container" class="game-screen">
+          <canvas id="gameCanvas"></canvas>
+          <div id="hud">
+              <div id="top-bar">
+                  <div id="score-container">
+                      <div id="score">Puntos: 0</div>
+                      <div id="points-lost-notification">-1 Punto</div>
+                  </div>
+                  <div id="timer">Tiempo: 60s</div>
+              </div>
+              <div id="notification-center">
+                  <div id="rafa-notification">¡Pulsa a Rafa/Miguel para no perder puntos!</div>
+                  <div id="rafa-phrase"></div>
+              </div>
+          </div>
+          <img id="rafa" src="assets/rafa.png" />
+        </div>
+
+        <!-- Screen 5: Game Over / Ranking Form -->
+        <div id="ranking-form" class="game-screen">
+          <h2 class="menu-title">¡Juego Terminado!</h2>
+          <p>Tu puntuación: <span id="final-score-with-code"></span></p>
+          <input type="text" id="player-name" placeholder="Tu nombre">
+          <input type="email" id="player-email" placeholder="Tu correo electrónico">
+          <input type="tel" id="player-phone" placeholder="Tu número de teléfono">
+          <input type="hidden" id="game-code-hidden">
+          <button id="save-score-btn" class="menu-button">Guardar Puntuación</button>
+        </div>
+
+        <!-- Screen 6: Game Over (Normal) -->
+        <div id="game-over-normal" class="game-screen">
+            <h2 class="menu-title">¡Juego Terminado!</h2>
+            <p>Tu puntuación final: <span id="final-score-normal"></span></p>
+            <button id="play-again-normal-btn" class="menu-button">Jugar de Nuevo</button>
+            <button id="view-ranking-btn" class="menu-button secondary-button">Ver Ranking</button>
+        </div>
+
+      </div> <!-- /console-screen-container -->
+
+      <div id="console-footer">
+        <div class="footer-top-row">
+          <div id="power-led"></div>
+          <button id="mute-btn">🔊</button>
+          <div class="brand-container">
+            <a href="mailto:tropilabsia@gmail.com" id="brand-name">KravenGames</a>
+            <span class="byline">By Pablo López</span>
+          </div>
+        </div>
+        <div class="footer-bottom-row">
+          <img id="console-logo" src="assets/logo.png" alt="Logo de la consola">
+        </div>
+      </div>
+    </div> <!-- /retro-console -->
+  </div> <!-- /game-wrapper -->
+
+  <!-- Ranking Modal -->
+  <div id="ranking-display">
+    <div id="ranking-container">
+      <h2>Ranking</h2>
+      <ul id="ranking-list"></ul>
+      <div style="text-align: center;">
+        <button id="play-again-btn">Jugar de Nuevo</button>
+        <button id="close-ranking">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <audio id="gameMusic" src="assets/juego.mp3" loop preload="auto"></audio>
+  <audio id="loadingMusic" src="assets/carga.mp3" loop preload="auto"></audio>
+  <audio id="aciertoSound" src="assets/acierto.mp3" preload="auto"></audio>
+  <audio id="falloSound" src="assets/fallo.mp3" preload="auto"></audio>
+  <audio id="palmadaSound" src="assets/palmada.mp3" preload="auto"></audio>
+  <script src="game.js"></script>
+</body>
+</html>
