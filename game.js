@@ -267,7 +267,7 @@ window.addEventListener('DOMContentLoaded', () => {
             alert('Por favor, introduce los 5 caracteres de tu código.');
             return;
         }
-        const fullCode = `HONEY-${codeSuffix}`.toUpperCase();
+        const fullCode = `HONEY-${codeSuffix}`;
         try {
             const response = await fetch('/api/validate-code', {
                 method: 'POST',
