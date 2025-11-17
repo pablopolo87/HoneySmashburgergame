@@ -111,5 +111,5 @@ app.post('/save-score', async (req, res) => {
 // app.use('/api', apiRouter);
 
 app.listen(port, '0.0.0.0', () => {
-    console.log(`Servidor del ranking escuchando en el puerto ${port}`);
+    console.log(`==> NUEVA VERSIÓN: Servidor escuchando en el puerto ${port} <==`);
 });
