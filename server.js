@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 // --- MongoDB Connection ---
 // ¡IMPORTANTE! Usa una variable de entorno en Render para esto.
 const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, { tls: true });
 
 let db;
 
@@ -42,15 +42,16 @@ app.get('/ranking', async (req, res) => {
 
 // Endpoint para validar un código de juego desde MongoDB
 app.post('/api/validate-code', async (req, res) => {
-    const { code } = req.body;
-
-    if (!code) {
-        return res.status(400).json({ valid: false, message: 'No se ha proporcionado ningún código.' });
-    }
-
-    try {
-        const foundCode = await db.collection('codes').findOne({ code: code });
-
+            const { code } = req.body;
+            console.log('Received code for validation:', code); // Log the received code
+    
+            if (!code) {
+                return res.status(400).json({ valid: false, message: 'No se ha proporcionado ningún código.' });
+            }
+    
+            try {
+                const foundCode = await db.collection('codes').findOne({ code: code });
+                console.log('Result of findOne query:', foundCode); // Log the result of the query
         if (foundCode) {
             if (!foundCode.used) {
                 res.json({ valid: true, message: 'Código válido.' });
