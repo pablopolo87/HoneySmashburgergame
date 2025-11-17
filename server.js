@@ -1,13 +1,14 @@
 const express = require('express');
 const path = require('path');
 const { MongoClient } = require('mongodb');
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // --- MongoDB Connection ---
 // ¡IMPORTANTE! Usa una variable de entorno en Render para esto.
-const uri = process.env.MONGODB_URI || "mongodb+srv://honeysmash:Rafamiguel2025@cluster0.vo6lrlw.mongodb.net/?appName=Cluster0";
+const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
 let db;
@@ -67,9 +68,9 @@ app.post('/api/validate-code', async (req, res) => {
 
 // Endpoint para guardar la puntuación en MongoDB
 app.post('/save-score', async (req, res) => {
-    const { name, score, code } = req.body;
+    const { name, score, code, phone } = req.body; // Añadido 'phone'
 
-    if (!name || name.trim() === '' || !code || typeof score !== 'number') {
+    if (!name || name.trim() === '' || !code || typeof score !== 'number' || !phone) { // Añadida validación para 'phone'
         return res.status(400).send('Datos de puntuación no válidos o incompletos.');
     }
 
@@ -86,7 +87,7 @@ app.post('/save-score', async (req, res) => {
         // Marcar el código como usado
         const updateResult = await db.collection('codes').updateOne(
             { code: code },
-            { $set: { used: true, usedDate: new Date(), playerName: name, score: score } }
+            { $set: { used: true, usedDate: new Date(), playerName: name, score: score, playerPhone: phone } } // Añadido 'playerPhone'
         );
 
         if (updateResult.modifiedCount === 0) {
@@ -94,7 +95,7 @@ app.post('/save-score', async (req, res) => {
         }
 
         // Guardar la puntuación en la colección de ranking
-        const playerData = { name, score, date: new Date() };
+        const playerData = { name, score, phone, date: new Date() }; // Añadido 'phone'
         await db.collection('rankings').insertOne(playerData);
 
         res.send('Puntuación guardada y código actualizado correctamente.');
@@ -109,6 +110,6 @@ app.post('/save-score', async (req, res) => {
 // const apiRouter = require('./api');
 // app.use('/api', apiRouter);
 
-app.listen(port, () => {
-    console.log(`Servidor del ranking escuchando en http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Servidor del ranking escuchando en el puerto ${port}`);
 });
