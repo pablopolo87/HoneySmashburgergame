@@ -102,10 +102,10 @@ app.get('/halloffame', checkMongoConnection, async (req, res) => {
         
         if (halloffame.length === 0) {
             const topFromRanking = await db.collection('rankings').find().sort({ score: -1 }).limit(15).toArray();
-            return res.json(topFromRanking);
+            res.json(topFromRanking);
+        } else {
+            res.json(halloffame);
         }
-        
-        res.json(halloffame);
     } catch (err) {
         console.error('Error al obtener el Hall of Fame:', err);
         res.status(500).json({ success: false, message: 'Error al leer el Hall of Fame.' });
@@ -181,11 +181,24 @@ app.post('/save-score', checkMongoConnection, async (req, res) => {
 
         // Actualizar Hall of Fame si es necesario (mantiene TOP 15 histórico)
         try {
-            const existingEntry = await db.collection('halloffame').findOne({ code: code });
-            const lowestInHallOfFame = await db.collection('halloffame').find().sort({ score: 1 }).limit(1).toArray();
             const hallofameCount = await db.collection('halloffame').countDocuments();
             
+            // Si Hall of Fame está vacío, inicializarlo con top 15 del ranking
+            if (hallofameCount === 0) {
+                const top15Rankings = await db.collection('rankings').find().sort({ score: -1 }).limit(15).toArray();
+                if (top15Rankings.length > 0) {
+                    await db.collection('halloffame').insertMany(top15Rankings);
+                    console.log(`Hall of Fame inicializado con ${top15Rankings.length} puntuaciones del ranking`);
+                }
+            }
+            
+            // Verificar si la puntuación actual entra en top 15
+            const lowestInHallOfFame = await db.collection('halloffame').find().sort({ score: 1 }).limit(1).toArray();
+            const hallofameCountUpdated = await db.collection('halloffame').countDocuments();
+            const existingEntry = await db.collection('halloffame').findOne({ code: code });
+            
             if (existingEntry) {
+                // Si el código ya existe en Hall of Fame, actualizar si la puntuación es mayor
                 if (score > existingEntry.score) {
                     await db.collection('halloffame').updateOne(
                         { code: code },
@@ -193,9 +206,12 @@ app.post('/save-score', checkMongoConnection, async (req, res) => {
                     );
                     console.log(`Hall of Fame actualizado: ${name} - ${score} puntos`);
                 }
-            } else if (hallofameCount < 15 || (lowestInHallOfFame.length > 0 && score > lowestInHallOfFame[0].score)) {
+            } else if (hallofameCountUpdated < 15 || (lowestInHallOfFame.length > 0 && score > lowestInHallOfFame[0].score)) {
+                // Insertar puntuación en Hall of Fame
                 await db.collection('halloffame').insertOne({ name, score, phone, date: new Date(), code: code });
-                if (hallofameCount >= 15) {
+                
+                // Si hay más de 15, eliminar el de menor puntaje
+                if (hallofameCountUpdated >= 15) {
                     await db.collection('halloffame').deleteOne({ _id: lowestInHallOfFame[0]._id });
                 }
                 console.log(`Hall of Fame actualizado: ${name} - ${score} puntos`);
