@@ -1,0 +1,20 @@
+[
+  {
+    "code": "HONEY-12345",
+    "used": false,
+    "score": 0,
+    "playerName": ""
+  },
+  {
+    "code": "HONEY-67890",
+    "used": false,
+    "score": 0,
+    "playerName": ""
+  },
+  {
+    "code": "HONEY-ABCDE",
+    "used": true,
+    "score": 1500,
+    "playerName": "JugadorAnterior"
+  }
+]
