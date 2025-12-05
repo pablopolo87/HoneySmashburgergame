@@ -99,6 +99,12 @@ app.get('/ranking', checkMongoConnection, async (req, res) => {
 app.get('/halloffame', checkMongoConnection, async (req, res) => {
     try {
         const halloffame = await db.collection('halloffame').find().sort({ score: -1 }).limit(15).toArray();
+        
+        if (halloffame.length === 0) {
+            const topFromRanking = await db.collection('rankings').find().sort({ score: -1 }).limit(15).toArray();
+            return res.json(topFromRanking);
+        }
+        
         res.json(halloffame);
     } catch (err) {
         console.error('Error al obtener el Hall of Fame:', err);
