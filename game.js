@@ -339,7 +339,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     async function calculateRankingPosition(playerScore) {
         try {
-            const response = await fetch('/ranking?nocache=' + Date.now(), {
+            const baseUrl = window.location.origin;
+            const response = await fetch(`${baseUrl}/ranking?nocache=${Date.now()}`, {
                 method: 'GET',
                 cache: 'no-store',
                 headers: {
@@ -350,14 +351,14 @@ window.addEventListener('DOMContentLoaded', () => {
             });
             if (response.ok) {
                 const rankingData = await response.json();
-                
+
                 let position = rankingData.findIndex(entry => entry.score < playerScore) + 1;
                 if (position === 0) position = rankingData.length + 1;
-                
+
                 const positionElement = document.getElementById('ranking-position');
                 const messageElement = document.getElementById('ranking-message');
                 const containerElement = document.getElementById('ranking-position-container');
-                
+
                 let messages, rankText;
                 if (position <= 10) {
                     messages = rankingMessages.top10;
@@ -372,10 +373,12 @@ window.addEventListener('DOMContentLoaded', () => {
                     messages = rankingMessages.outside30;
                     rankText = `Posición #${position}`;
                 }
-                
+
                 positionElement.textContent = rankText;
                 messageElement.textContent = messages[Math.floor(Math.random() * messages.length)];
                 containerElement.style.display = 'block';
+            } else {
+                console.error(`Error calculating ranking position: HTTP ${response.status}`);
             }
         } catch (error) {
             console.error('Error calculating ranking position:', error);
@@ -408,7 +411,8 @@ window.addEventListener('DOMContentLoaded', () => {
         }
         const fullCode = `HONEY-${codeSuffix}`;
         try {
-            const response = await fetch('/api/validate-code', {
+            const baseUrl = window.location.origin;
+            const response = await fetch(`${baseUrl}/api/validate-code`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -417,23 +421,23 @@ window.addEventListener('DOMContentLoaded', () => {
                     code: fullCode
                 })
             });
-            
+
             const responseText = await response.text();
             const result = parseResponse(responseText);
             result.valid = result.valid || false;
-            
+
             if (response.status === 403) {
                 alert('❌ ¡Este código ya ha sido utilizado! \n\nNecesitas pedir un código nuevo para jugar.');
                 playerCodeInput.value = '';
                 return;
             }
-            
+
             if (response.status === 404) {
                 alert('❌ ¡El código no existe! \n\nPor favor, verifica que esté correcto.\n(Recuerda: solo los 5 caracteres después de HONEY-)');
                 playerCodeInput.value = '';
                 return;
             }
-            
+
             if (response.ok && result.valid) {
                 validatedGameCode = fullCode;
                 playerCodeInput.value = '';
@@ -444,7 +448,11 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error validating code:', error);
-            alert('❌ No se pudo conectar con el servidor.\n\nAsegúrate de que http://localhost:3000 esté abierto en otro pestaña.');
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                alert('❌ Error de conexión de red. Verifica tu conexión a internet.');
+            } else {
+                alert(`❌ Error: ${error.message}`);
+            }
         }
     }
 
@@ -453,17 +461,17 @@ window.addEventListener('DOMContentLoaded', () => {
         const playerEmail = document.getElementById('player-email').value;
         const playerPhone = document.getElementById('player-phone').value;
         const gameCode = document.getElementById('game-code-hidden').value;
-        
+
         if (!playerName) {
             alert('Por favor, introduce tu nombre.');
             return;
         }
-        
+
         if (!playerPhone) {
             alert('Por favor, introduce tu teléfono.');
             return;
         }
-        
+
         const scoreData = {
             name: playerName,
             score: score,
@@ -471,19 +479,20 @@ window.addEventListener('DOMContentLoaded', () => {
             phone: playerPhone,
             code: gameCode
         };
-        
+
         try {
-            const response = await fetch('/save-score', {
+            const baseUrl = window.location.origin;
+            const response = await fetch(`${baseUrl}/save-score`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(scoreData)
             });
-            
+
             const responseText = await response.text();
             const result = parseResponse(responseText);
-            
+
             if (response.status === 403) {
                 alert(`❌ ${result.message || 'Este código ya ha sido utilizado.'}`);
                 document.getElementById('player-name').value = '';
@@ -492,7 +501,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 showScreen(playOptionsScreen);
                 return;
             }
-            
+
             if (response.ok) {
                 const playerNameResult = result.name || document.getElementById('player-name').value;
                 const scoreResult = result.score || score;
@@ -507,7 +516,11 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error sending score:', error);
-            alert('❌ Error de conexión al servidor.\n\nAsegúrate de que http://localhost:3000 esté abierto en otro pestaña.');
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                alert('❌ Error de conexión de red. Verifica tu conexión a internet.');
+            } else {
+                alert(`❌ Error: ${error.message}`);
+            }
         }
     }
 
@@ -538,7 +551,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     async function fetchRanking() {
         try {
-            const response = await fetch('/ranking?nocache=' + Date.now(), {
+            const baseUrl = window.location.origin;
+            const response = await fetch(`${baseUrl}/ranking?nocache=${Date.now()}`, {
                 method: 'GET',
                 cache: 'no-store',
                 headers: {
@@ -556,17 +570,23 @@ window.addEventListener('DOMContentLoaded', () => {
                 rankingDisplay.style.display = 'flex';
                 showRankingTab();
             } else {
-                alert(`Error al cargar el ranking: ${responseText}`);
+                console.error(`HTTP Error ${response.status}: ${responseText}`);
+                alert(`Error al cargar el ranking (${response.status}): ${responseText}`);
             }
         } catch (error) {
             console.error('Error fetching ranking:', error);
-            alert('❌ Error de conexión. Asegúrate de abrir http://localhost:3000');
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                alert('❌ Error de conexión de red. Verifica tu conexión a internet.');
+            } else {
+                alert(`❌ Error: ${error.message}`);
+            }
         }
     }
 
     async function displayHallOfFame() {
         try {
-            const response = await fetch('/halloffame?nocache=' + Date.now(), {
+            const baseUrl = window.location.origin;
+            const response = await fetch(`${baseUrl}/halloffame?nocache=${Date.now()}`, {
                 method: 'GET',
                 cache: 'no-store',
                 headers: {
@@ -576,11 +596,11 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
             });
             const responseText = await response.text();
-            
+
             if (response.ok) {
                 const halloffameData = JSON.parse(responseText);
                 log('Hall of Fame data:', halloffameData);
-                
+
                 const podium = [1, 2, 3];
                 podium.forEach(position => {
                     const player = halloffameData[position - 1];
@@ -594,10 +614,10 @@ window.addEventListener('DOMContentLoaded', () => {
                         podiumElement.querySelector('.podium-score').textContent = '-';
                     }
                 });
-                
+
                 const halloffameList = document.getElementById('halloffame-list');
                 halloffameList.innerHTML = '';
-                
+
                 if (halloffameData.length === 0) {
                     halloffameList.innerHTML = '<li style="justify-content: center;">El Hall of Fame está vacío.</li>';
                 } else {
@@ -609,7 +629,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     });
                 }
             } else {
-                log('Error al cargar el Hall of Fame');
+                log(`Error al cargar el Hall of Fame: HTTP ${response.status}`);
             }
         } catch (error) {
             logError('Error fetching Hall of Fame:', error);
