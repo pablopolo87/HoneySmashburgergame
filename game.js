@@ -552,7 +552,10 @@ window.addEventListener('DOMContentLoaded', () => {
     async function fetchRanking() {
         try {
             const baseUrl = window.location.origin;
-            const response = await fetch(`${baseUrl}/ranking?nocache=${Date.now()}`, {
+            const fullUrl = `${baseUrl}/ranking?nocache=${Date.now()}`;
+            console.log('Fetching ranking from:', fullUrl);
+
+            const response = await fetch(fullUrl, {
                 method: 'GET',
                 cache: 'no-store',
                 headers: {
@@ -561,7 +564,13 @@ window.addEventListener('DOMContentLoaded', () => {
                     'Expires': '0'
                 }
             });
+
+            console.log('Response status:', response.status);
+            console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
             const responseText = await response.text();
+            console.log('Response text:', responseText);
+
             if (response.ok) {
                 allRankingData = JSON.parse(responseText);
                 currentRankingPage = 1;
@@ -575,6 +584,8 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error fetching ranking:', error);
+            console.error('Error name:', error.name);
+            console.error('Error message:', error.message);
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 alert('❌ Error de conexión de red. Verifica tu conexión a internet.');
             } else {
