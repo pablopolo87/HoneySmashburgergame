@@ -15,8 +15,6 @@ app.use(express.static(path.join(__dirname)));
 // ¡IMPORTANTE! Usa una variable de entorno en Render para esto.
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     maxPoolSize: 10,
     minPoolSize: 2,
     serverSelectionTimeoutMS: 5000,
