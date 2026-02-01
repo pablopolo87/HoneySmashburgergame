@@ -705,15 +705,21 @@ canvas {
     text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
   }
 
-  #loading-instructions, #ranking-form p, #game-over-normal p {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      font-size: 4vmin;
-      line-height: 1.5;
+  #boot-instructions, #loading-instructions, #ranking-form p, #game-over-normal p {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 4.5vmin;
+    line-height: 1.55;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.7);
   }
 
   #loading-instructions {
-      margin-top: 100px;
-      padding: 0 10%;
+    margin-top: 100px;
+    padding: 0 10%;
+  }
+
+  #boot-instructions {
+    padding: 0 10%;
   }
   
   #ranking-form input {
@@ -838,8 +844,11 @@ canvas {
     letter-spacing: 4px;
   }
 
+  #boot-instructions, #loading-instructions {
+    font-size: 4.2vmin;
+  }
+
   #loading-instructions {
-    font-size: 3.5vmin;
     margin-top: 80px;
   }
 }
@@ -873,9 +882,12 @@ canvas {
     padding: 10px 8px;
   }
 
+  #boot-instructions, #loading-instructions {
+    font-size: 3.4vmin;
+  }
+
   #loading-instructions {
     margin-top: 50px;
-    font-size: 3vmin;
   }
 
   #console-footer {
